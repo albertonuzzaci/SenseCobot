@@ -1,0 +1,54 @@
+# ----- INPUT DIRECTORY -----
+FOLDER:
+  DATASET: Dataset
+  ECG: Dataset/ECG_Shimmer3_Signals
+  GSR: Dataset/GSR_Shimmer3_Signals
+  EEG: Dataset/EEG_Enobio20_Signals
+  EMOTIONS: Dataset/Emotions_AFFDEX_Signals
+# ---------------------------
+
+WINDOW_SIZE: 10
+
+
+# ----- PRE PROCESSED DIRECTORY -----
+PFOLDER:
+  #-----MAIN OUTPUT DIR----
+  DATASET: processedDataset
+  
+  #--------ECG-------------
+  ECG: processedDataset/ECG
+  ECG_PROCESSED: processedDataset/ECG/ECG_processed
+  ECG_PROCESSED_WINDOWS: processedDataset/ECG/ECG_processed_windows
+  #------------------------
+
+  #--------EEG-------------
+  EEG: processedDataset/EEG/
+  EEG_CSV: processedDataset/EEG/EEG_processed_csv
+  EEG_FIF: processedDataset/EEG/EEG_processed_fif
+  EEG_REDUCED: processedDataset/EEG/EEG_processed_reduced
+  #-------------------------
+
+  #--------GSR-------------
+  GSR: processedDataset/GSR
+  GSR_PROCESSED: processedDataset/GSR/GSR_processed
+  GSR_PROCESSED_WINDOWS: processedDataset/GSR/GSR_processed_windows
+  GSR_PROCESSED_FREQUENCY: processedDataset/GSR/GSR_processed_freq
+  #-------------------------
+
+  #--------EMOTIONS--------
+  EMOTIONS: processedDataset/EMO
+  EMOTIONS_PROCESSED: processedDataset/EMO/EMO_processed
+  #-------------------------
+
+# -----LABELS FILES-----
+LABELS_IN: Dataset/labels.csv
+LABELS_OUT: processedDataset/labels_formatted.csv
+
+# -----FINAL DATASET-----
+FINAL_DATASET:
+  MAIN_DIR: finalDataset
+  ECG_FINAL_DATASET: finalDataset/SenseCobotFusion_ECG.csv
+  EEG_FINAL_DATASET: finalDataset/SenseCobotFusion_EEG.csv
+  GSR_FINAL_DATASET: finalDataset/SenseCobotFusion_GSR.csv
+  EMOTIONS_FINAL_DATASET: finalDataset/SenseCobotFusion_EMO.csv
+  FINAL_DATASET_CSV: finalDataset/SenseCobotFusion.csv
