@@ -65,9 +65,9 @@ This script processes the specified signals. If no signals are specified, all si
 
 ### Merging
 After analyzing the data, you can merge the datasets into unique datasets for each signal and finally into one unified dataset using the `merge_dataset` script.
-	```sh
-	python3 merge_dataset.py
-	```
+```sh
+python3 merge_dataset.py
+```
 
 ### Contributors
 
