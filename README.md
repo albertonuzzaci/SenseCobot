@@ -5,9 +5,23 @@ This project is designed to process and analyze various physiological signals su
 
 ## Table of Contents
 1. [Virtual Environment Setup](#virtual-environment-setup)
-2. [Installation](#installation)
+2. [General Setup](#installation)
 3. [Usage](#usage)
 4. [Contributing](#contributing)
+
+## Genereal Setup
+
+### Dataset
+
+The dataset is available on [Zenodo](https://zenodo.org/), specifically at the following link:
+[https://zenodo.org/records/10124005](https://zenodo.org/records/10124005)
+
+### Configuration
+
+The `config.yaml` file is a configuration file that allows you to set the input and output folders.
+
+Once the downloaded folder is renamed to "Dataset", the input folders are standard. The output folders can be customized as desired.
+
 
 ## Virtual Environment Setup
 To ensure that all dependencies are managed properly, it is recommended to use a virtual environment. Follow the steps below to activate the virtual environment:
@@ -54,3 +68,8 @@ After analyzing the data, you can merge the datasets into unique datasets for ea
 	```sh
 	python3 merge_dataset.py
 	```
+
+### Contributors
+
+- **Alberto Nuzzaci**
+- **Simone Borghi** 
