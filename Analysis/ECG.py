@@ -29,23 +29,23 @@ class Participant_ECG(Participant):
             if self.tasknumber != 0: 
                 self.df = pd.read_csv(self.filepath, 
                                       sep=',', 
-                                      dtype={"ECG LA-RA CAL": float, "ECG LL-RA CAL": float, "ECG Vx-RL CAL": float},
+                                      dtype={'ECG LA-RA CAL': float, 'ECG LL-RA CAL': float, 'ECG Vx-RL CAL': float},
                                       usecols=range(4))
                 
             else:
                 self.df = pd.read_csv(self.filepath, 
                                       sep=',', 
-                                      dtype={"ECG LA-RA CAL": float, "ECG LL-RA CAL": float, "ECG Vx-RL CAL": float,"SourceStimuliName":str})
-                valid_source_names = ["60 Sec Video", "60 Sec Video-1", "60 Sec Video-2"]
+                                      dtype={'ECG LA-RA CAL': float, 'ECG LL-RA CAL': float, 'ECG Vx-RL CAL': float,'SourceStimuliName':str})
+                valid_source_names = ['60 Sec Video', '60 Sec Video-1', '60 Sec Video-2']
                 self.df = self.df[self.df['SourceStimuliName'].isin(valid_source_names)]
                 self.df = self.df.drop(['SourceStimuliName'], axis=1)
 
         except Exception as e:
-            raise Exception(f"While loading the data this Exception occurred:\n{e} - {type(e)}")
+            raise Exception(f'While loading the data this Exception occurred:\n{e} - {type(e)}')
         try:
-            self.df['Timestamp'] = pd.to_datetime(self.df['Timestamp'], format="%Y-%m-%d %H:%M:%S.%f")
+            self.df['Timestamp'] = pd.to_datetime(self.df['Timestamp'], format='%Y-%m-%d %H:%M:%S.%f')
         except ValueError:
-            self.df['Timestamp'] = pd.to_datetime(self.df['Timestamp'], format="%M:%S.%f")
+            self.df['Timestamp'] = pd.to_datetime(self.df['Timestamp'], format='%M:%S.%f')
         
         start_time = self.df['Timestamp'].iloc[0]
         self.df['Timestamp'] = (self.df['Timestamp'] - start_time).dt.total_seconds() * 1000
@@ -121,7 +121,7 @@ class Participant_ECG(Participant):
         Lk = np.array(Lk)
 
         if np.any(Lk <= 0):
-            raise ValueError("Lk contains non-positive values. Check the signal and the calculation.")
+            raise ValueError('Lk contains non-positive values. Check the signal and the calculation.')
 
         log_k = np.log(np.arange(1, max_k + 1))
         log_Lk = np.log(Lk)
@@ -135,7 +135,7 @@ class Participant_ECG(Participant):
         Extract RR peaks and add other metrics to the dataframe
         '''
         self.df['Index'] = range(1, len(self.df) + 1)
-        self.df.set_index("Index")
+        self.df.set_index('Index')
         peaks, _ = find_peaks(filtered_data, height=-100, distance=200)
         filtered_data_series = pd.Series(filtered_data)
 
@@ -219,23 +219,23 @@ class Participant_ECG(Participant):
         Add the power of the frequency bands VLF, LF, and HF.
         '''
         band_powers = {
-            "vlf" : [0.01, 0.04],
-            "lf" : [0.04, 0.15],
-            "hf" : [0.15, 0.4]
+            'vlf' : [0.01, 0.04],
+            'lf' : [0.04, 0.15],
+            'hf' : [0.15, 0.4]
         }
         fs_HR = 1000 / self.new_df['RR_Intervals'].mean()
         hr = self.new_df['Heart_Rate']
         # Compute the power spectral density of the HR signal
         f, Pxx = signal.periodogram(hr, fs=fs_HR, scaling='spectrum')
 
-        vlf_indices = np.where(np.logical_and(f >= band_powers["vlf"][0], 
-                                                f <= band_powers["vlf"][1]))
+        vlf_indices = np.where(np.logical_and(f >= band_powers['vlf'][0], 
+                                                f <= band_powers['vlf'][1]))
         
-        lf_indices = np.where(np.logical_and(f >= band_powers["lf"][0], 
-                                                f <= band_powers["lf"][1]))
+        lf_indices = np.where(np.logical_and(f >= band_powers['lf'][0], 
+                                                f <= band_powers['lf'][1]))
         
-        hf_indices = np.where(np.logical_and(f >= band_powers["hf"][0], 
-                                                f <= band_powers["hf"][1]))
+        hf_indices = np.where(np.logical_and(f >= band_powers['hf'][0], 
+                                                f <= band_powers['hf'][1]))
         Pxx = Pxx[~np.isnan(Pxx)]
         # Compute the power spectrum for each frequency band, if the indices are not empty
         try:
@@ -257,7 +257,7 @@ class Participant_ECG(Participant):
         
         
     def saveDataframe(self):
-        task = f'Task_0{self.tasknumber}' if self.tasknumber != 0 else "Baseline"
+        task = f'Task_0{self.tasknumber}' if self.tasknumber != 0 else 'Baseline'
         ECG_path = os.path.join(self.output_directory, f'./ECG_{task}_P_{self.id}_Heart_Parameters.csv')
 
         self.new_df.to_csv(ECG_path, index=False)
@@ -387,7 +387,7 @@ class Participant_ECG(Participant):
             'HR_norm_Median': heart_rate_median_norm,
             #----General values------
             'PNN25': pnn25_list,
-            'SDNN': sdnn_list,
+            'SDNN': sdnn_list,            
             'RMSSD': rmssd_list,
             'PNN50': pnn50_list,
         })
@@ -424,7 +424,7 @@ class Participant_ECG(Participant):
             self.delExtremeNSec(5)
         self.delNullInf()
         filtered_data = self.normalize(10, 90, 10, 40, "ECG LL-RA CAL")
-        f = 2
+        f = 1
         peaks, valid_peaks, filtered_data_mean, filtered_data_series = self.findPeaks(1000,f, filtered_data)
         self.addStats()
         self.cleanHeartRate()
@@ -432,3 +432,4 @@ class Participant_ECG(Participant):
         self.saveDataframe()
         self.divideInWindows(self.window_size)
                       
+

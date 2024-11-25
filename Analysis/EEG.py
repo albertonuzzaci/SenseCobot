@@ -107,10 +107,16 @@ class Participant_EEG(Participant):
         else:
             raise ValueError("All channells are bad.")
 
-    def get_power_spectrum(self, window_length = 10):
+    def get_power_spectrum(self, window_length):
         channels = self.raw.ch_names
-        power_dict = {f"{key}_{band}": [] for key in channels for band in ['theta', 'alpha', 'beta']}
+        power_dict = {f"{key}_{band}_mean": [] for key in channels for band in ['theta', 'alpha', 'beta']}
         coherence_dict = {f"{key1}_{key2}_coherence": [] for key1 in channels for key2 in channels if key1 != key2}
+        min_dict = {f"{channel_band.replace('_mean','')}_min": [] for channel_band in power_dict.keys()}
+        max_dict = {f"{channel_band.replace('_mean','')}_max": [] for channel_band in power_dict.keys()}
+        median_dict = {f"{channel_band.replace('_mean','')}_median": [] for channel_band in power_dict.keys()}
+        std_dict = {f"{channel_band.replace('_mean','')}_std": [] for channel_band in power_dict.keys()}
+        beta_alpha_ratio = {}
+        assymetry_dict = {}
 
         bands = {"theta": (4, 8), "alpha": (8, 13), "beta": (13, 30)}
         n_samples_window = int(window_length * self.raw.info['sfreq'])
@@ -126,10 +132,18 @@ class Participant_EEG(Participant):
                 power = tfr_array_morlet(data_window[np.newaxis, :, :], sfreq=self.raw.info['sfreq'],
                                           freqs=np.arange(fmin, fmax + 1), output='power', zero_mean=False, verbose=False)
                 avg_power = np.mean(power, axis=2).squeeze()
-                # Calculate average power across time
-                avg_power = np.mean(avg_power, axis=1)
+                # Calcola la media dell'array power per ogni canale
+                avg_power_mean = np.mean(avg_power, axis=1)
+                avg_power_min = np.min(avg_power, axis=1)
+                avg_power_max = np.max(avg_power, axis=1)
+                avg_power_median = np.median(avg_power, axis=1)
+                avg_power_std = np.std(avg_power, axis=1)
                 for j, channel in enumerate(channels):
-                    power_dict[f'{channel}_{band_name}'].append(avg_power[j])
+                    power_dict[f'{channel}_{band_name}_mean'].append(avg_power_mean[j])
+                    min_dict[f'{channel}_{band_name}_min'].append(avg_power_min[j])
+                    max_dict[f'{channel}_{band_name}_max'].append(avg_power_max[j])
+                    median_dict[f'{channel}_{band_name}_median'].append(avg_power_median[j])
+                    std_dict[f'{channel}_{band_name}_std'].append(avg_power_std[j])
 
             # Calculate coherence between pairs of channels
             for j in range(len(channels)):
@@ -138,21 +152,112 @@ class Participant_EEG(Participant):
                     avg_coherence = np.mean(Cxy) if len(Cxy) > 0 else np.nan  # Handle empty results
                     coherence_dict[f'{channels[j]}_{channels[k]}_coherence'].append(avg_coherence)
 
+            for channel in power_dict.keys(): 
+                if "beta" in channel:
+                    beta_channel_name = channel.replace("_mean", "")
+                    alpha_channel_name = channel.replace("beta", "alpha").replace("_mean", "")
+
+                    
+                    beta_power_array = np.array(power_dict[f"{beta_channel_name}_mean"])
+                    alpha_power_array = np.array(power_dict[f"{alpha_channel_name}_mean"])
+                    beta_alpha_ratio[f"{beta_channel_name}/{alpha_channel_name}_mean"] = list(np.round(beta_power_array / alpha_power_array, 4))
+                    
+                    beta_power_array_min = np.array(min_dict[f'{beta_channel_name}_min'])
+                    alpha_power_array_min = np.array(min_dict[f'{alpha_channel_name}_min'])
+                    beta_alpha_ratio[f"{beta_channel_name}/{alpha_channel_name}_min"] = list(np.round(beta_power_array_min / alpha_power_array_min, 4))
+                    
+                    beta_power_array_max = np.array(max_dict[f'{beta_channel_name}_max'])
+                    alpha_power_array_max = np.array(max_dict[f'{alpha_channel_name}_max'])
+                    beta_alpha_ratio[f"{beta_channel_name}/{alpha_channel_name}_max"] = list(np.round(beta_power_array_max / alpha_power_array_max, 4))
+                    
+                    beta_power_array_median = np.array(median_dict[f'{beta_channel_name}_median'])
+                    alpha_power_array_median = np.array(median_dict[f'{alpha_channel_name}_median'])
+                    beta_alpha_ratio[f"{beta_channel_name}/{alpha_channel_name}_median"] = list(np.round(beta_power_array_median / alpha_power_array_median, 4))
+
+                    beta_power_array_std = np.array(std_dict[f'{beta_channel_name}_std'])
+                    alpha_power_array_std = np.array(std_dict[f'{alpha_channel_name}_std'])
+                    beta_alpha_ratio[f"{beta_channel_name}/{alpha_channel_name}_std"] = list(np.round(beta_power_array_std / alpha_power_array_std, 4))
+                    
+            if "F3" and "F4" in channels:
+                f3_alpha_mean = np.array(power_dict['F3_alpha_mean'])
+                f4_alpha_mean = np.array(power_dict['F4_alpha_mean'])
+                assymetry_dict["F3_F4_alpha_Asymmetry_mean"] = list(np.log(f3_alpha_mean) - np.log(f4_alpha_mean))
+                
+                f3_alpha_min = np.array(min_dict['F3_alpha_min'])
+                f4_alpha_min = np.array(min_dict['F4_alpha_min'])
+                assymetry_dict["F3_F4_alpha_Asymmetry_min"] = list(np.log(f3_alpha_min) - np.log(f4_alpha_min))
+                
+                f3_alpha_max = np.array(max_dict['F3_alpha_max'])
+                f4_alpha_max = np.array(max_dict['F4_alpha_max'])
+                assymetry_dict["F3_F4_alpha_Asymmetry_max"] = list(np.log(f3_alpha_max) - np.log(f4_alpha_max))
+                
+                f3_alpha_median = np.array(median_dict['F3_alpha_median'])
+                f4_alpha_median = np.array(median_dict['F4_alpha_median'])
+                assymetry_dict["F3_F4_alpha_Asymmetry_median"] = list(np.log(f3_alpha_median) - np.log(f4_alpha_median))
+                
+                f3_alpha_std = np.array(std_dict['F3_alpha_std'])
+                f4_alpha_std = np.array(std_dict['F4_alpha_std'])
+                assymetry_dict["F3_F4_alpha_Asymmetry_std"] = list(np.log(f3_alpha_std) - np.log(f4_alpha_std))
+            
+            if "F7" and "F8" in channels: 
+                f7_alpha_mean = np.array(power_dict['F7_alpha_mean'])
+                f8_alpha_mean = np.array(power_dict['F8_alpha_mean'])
+                assymetry_dict["F7_F8_alpha_Asymmetry_mean"] = list(np.log(f7_alpha_mean) - np.log(f8_alpha_mean))
+                
+                f7_alpha_min = np.array(min_dict['F7_alpha_min'])
+                f8_alpha_min = np.array(min_dict['F8_alpha_min'])
+                assymetry_dict["F7_F8_alpha_Asymmetry_min"] = list(np.log(f7_alpha_min) - np.log(f8_alpha_min))
+                
+                f7_alpha_max = np.array(max_dict['F7_alpha_max'])
+                f8_alpha_max = np.array(max_dict['F8_alpha_max'])
+                assymetry_dict["F7_F8_alpha_Asymmetry_max"] = list(np.log(f7_alpha_max) - np.log(f8_alpha_max))
+                
+                f7_alpha_median = np.array(median_dict['F7_alpha_median'])
+                f8_alpha_median = np.array(median_dict['F8_alpha_median'])
+                assymetry_dict["F7_F8_alpha_Asymmetry_median"] = list(np.log(f7_alpha_median) - np.log(f8_alpha_median))
+                
+                f7_alpha_std = np.array(std_dict['F7_alpha_std'])
+                f8_alpha_std = np.array(std_dict['F8_alpha_std'])
+                assymetry_dict["F7_F8_alpha_Asymmetry_std"] = list(np.log(f7_alpha_std) - np.log(f8_alpha_std))
+
         # Ensure all lists are the same length by filling with NaN
         max_length = n_windows
         for key in coherence_dict.keys():
             while len(coherence_dict[key]) < max_length:
                 coherence_dict[key].append(np.nan)
 
-        self.new_df_power = pd.DataFrame(power_dict)
-        self.new_df_coherence = pd.DataFrame(coherence_dict)
+        #---------------------------------------
+        new_df_power = pd.DataFrame(power_dict)
+        min_df = pd.DataFrame(min_dict)
+        max_dict = pd.DataFrame(max_dict)
+        median_df = pd.DataFrame(median_dict)
+        std_df = pd.DataFrame(std_dict)
 
-        self.new_df_coherence.dropna(axis=1, how='all', inplace=True)
-        self.new_df_power = pd.concat([self.new_df_power, self.new_df_coherence], axis=1)
+        new_df_power = pd.concat([new_df_power, min_df, max_dict, median_df, std_df], axis=1)
+
+        new_df_power = new_df_power.reindex(sorted(new_df_power.columns), axis=1)
+        #---------------------------------------
+        new_df_coherence = pd.DataFrame(coherence_dict)
+        new_df_coherence.dropna(axis=1, how='all', inplace=True)
+        #---------------------------------------
+        beta_alpha_ratio_df = pd.DataFrame(beta_alpha_ratio)
+        beta_alpha_ratio_df = beta_alpha_ratio_df.reindex(sorted(beta_alpha_ratio_df.columns), axis=1)
+        #---------------------------------------
+        assymetry_df = pd.DataFrame(assymetry_dict)
+        #---------------------------------------
+        
+
+        # Concatenate all dataframes
+        dataframe_list = [new_df_power, new_df_coherence, beta_alpha_ratio_df]
+        if not assymetry_df.empty:
+            dataframe_list.append(assymetry_df)
+        
+        self.new_df_power = pd.concat(dataframe_list, axis=1)
 
         # Handle timestamps
         time_stamp = list(range(window_length, window_length * (n_windows + 1), window_length))
         self.new_df_power.insert(0, "Timestamp", time_stamp)
+
 
         return power_dict, coherence_dict
 
@@ -199,6 +304,12 @@ class Participant_EEG(Participant):
         task = f'Task_0{self.tasknumber}' if self.tasknumber != 0 else "Baseline"
         EEG_path = os.path.join(self.output_directory_fif, f'./EEG_{task}_P_{self.id}.fif')
         self.raw.save(EEG_path, overwrite=True, verbose=False)
+    
+    def addStats(self):
+        '''
+        Add the statistics to the dataframe
+        '''
+        pass
 
     def pre_process(self):
         """

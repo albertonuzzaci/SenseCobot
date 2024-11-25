@@ -52,3 +52,4 @@ FINAL_DATASET:
   GSR_FINAL_DATASET: finalDataset/SenseCobotFusion_GSR.csv
   EMOTIONS_FINAL_DATASET: finalDataset/SenseCobotFusion_EMO.csv
   FINAL_DATASET_CSV: finalDataset/SenseCobotFusion.csv
+

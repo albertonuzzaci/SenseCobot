@@ -220,13 +220,11 @@ class Participant_GSR(Participant):
 
         self.new_df['Rise_Time'] = rise_time
         self.new_df['Recovery_Time'] = recovery_time
-        self.new_df['Latency'] = np.append(latency, 0)
         self.new_df['Peaks Number'] = num_peaks
     
         self.new_df = self.new_df.round(5)
  
-        self.new_df = self.new_df.round({'Latency': 3, 'Rise_Time': 3, 'Recovery_Time': 3})
-        self.new_df['Latency_Norm'] = round(self.new_df['Latency'] / self.new_df['Latency'].max(), 2)
+        self.new_df = self.new_df.round({'Rise_Time': 3, 'Recovery_Time': 3})
         self.new_df['Rise_Time_Norm'] = round(self.new_df['Rise_Time'] / self.new_df['Rise_Time'].max(), 2)
         self.new_df['Recovery_Time_Norm'] = round(self.new_df['Recovery_Time'] / self.new_df['Recovery_Time'].max(), 2)
         self.new_df['Amplitude_Norm'] = self.new_df['Amplitude'] / self.new_df['Amplitude'].max()
@@ -234,11 +232,9 @@ class Participant_GSR(Participant):
     def windowsDF(self, windowsSize=10):
         self.new_df['Window'] = (self.new_df['Peaks_Pos'] // (windowsSize * 1000)).astype(int)
         aggregations = {
-            'Latency': ['mean', 'std', 'min', 'max', 'var', 'median'],
             'Rise_Time': ['mean', 'std', 'min', 'max', 'var', 'median'],
             'Recovery_Time': ['mean', 'std', 'min', 'max', 'var', 'median'],
             'Amplitude': ['mean', 'std', 'min', 'max', 'var', 'median'],
-            'Latency_Norm': ['mean', 'min', 'max', 'median'],
             'Rise_Time_Norm': ['mean', 'min', 'max', 'median'],
             'Recovery_Time_Norm': ['mean', 'min', 'max', 'median'],
             'Amplitude_Norm': ['mean', 'min', 'max', 'median']        

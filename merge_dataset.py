@@ -34,7 +34,6 @@ def generate_labels_csv(input_path, output_path):
 	except Exception as e:
 		print(f"Error during processing: {e}")
 
-
 def generate_fused_dataset(input_dir, output_path):
 	'''
 	Generate a fused dataset from the input directory for all the participants.
@@ -89,6 +88,58 @@ def generate_fused_dataset(input_dir, output_path):
 	except Exception as e:
 		print(f"Error during processing: {e}")
 
+def generate_final_dataset(output_path):
+	'''
+	Generate the final dataset by merging the ECG, EEG, GSR, and Emotions datasets.
+	'''
+	# Load the datasets
+	# Check if the datasets exist before reading
+	ecg_path = f"{config_data['FINAL_DATASET']['ECG_FINAL_DATASET']}"
+	eeg_path = f"{config_data['FINAL_DATASET']['EEG_FINAL_DATASET']}"
+	gsr_path = f"{config_data['FINAL_DATASET']['GSR_FINAL_DATASET']}"
+	emotions_path = f"{config_data['FINAL_DATASET']['EMOTIONS_FINAL_DATASET']}"
+
+	dataframes = []
+	if os.path.exists(ecg_path):
+		ecg_df = pd.read_csv(ecg_path)
+		dataframes.append(ecg_df)
+	if os.path.exists(eeg_path):
+		eeg_df = pd.read_csv(eeg_path)
+		dataframes.append(eeg_df)
+	if os.path.exists(gsr_path):
+		gsr_df = pd.read_csv(gsr_path)
+		dataframes.append(gsr_df)
+	if os.path.exists(emotions_path):
+		emotions_df = pd.read_csv(emotions_path)
+		dataframes.append(emotions_df)
+
+	labels_df = pd.read_csv(f"{config_data['LABELS_OUT']}")
+
+	# Merge the datasets
+	merged_df = dataframes[0]
+	for df in dataframes[1:]:
+		merged_df = pd.merge(merged_df, df, on=['Participant', 'Task'])
+	merged_df = pd.merge(merged_df, labels_df, left_on=['Participant', 'Task'], right_on=['Participant_ID', 'Task'], how='left')
+	merged_df['Label'] = merged_df['Label'].fillna('')
+ 	
+	merged_df['Task'] = merged_df['Task'].astype(int)
+
+	
+	
+	merged_df = merged_df.sort_values(by=['Task', 'Participant'], key=lambda x: (x == 0).astype(int))
+	merged_df = merged_df.drop(columns=['Participant_ID'])
+ 
+	# Add "P_" in front of all values in the Participant column
+	merged_df['Participant'] = merged_df['Participant'].apply(lambda x: f"P_{x:02d}")
+	# Add "Task_" in front of all values in the Task column, replace 0 with "Baseline"
+	merged_df['Task'] = merged_df['Task'].apply(lambda x: "Baseline" if x == 0 else f"Task_{x}")
+	
+	# Round all float values to 4 decimal places
+	float_columns = merged_df.select_dtypes(include=['float64']).columns
+	merged_df[float_columns] = merged_df[float_columns].round(4)
+	# Save the merged dataset
+	merged_df.to_csv(output_path, index=False)
+
 if __name__ == "__main__":
 	config_data = getConfigData()
 	setup(config_data)
@@ -108,4 +159,4 @@ if __name__ == "__main__":
 	generate_fused_dataset(input_dir=f"{config_data['PFOLDER']['EMOTIONS_PROCESSED']}",
 						output_path=f"{config_data['FINAL_DATASET']['EMOTIONS_FINAL_DATASET']}")
  
-	
+	generate_final_dataset(output_path=f"{config_data['FINAL_DATASET']['FINAL_DATASET_CSV']}")

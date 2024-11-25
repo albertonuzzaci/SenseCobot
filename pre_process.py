@@ -26,8 +26,8 @@ inputs = {
 }
 
 parallelize = {
-    "ECG": True,
-    "EEG": False,
+    "ECG": False,
+    "EEG": True,
     "GSR": True,
     "EMO": True
 }
