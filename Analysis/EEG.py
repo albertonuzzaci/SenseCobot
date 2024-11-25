@@ -19,9 +19,9 @@ class Participant_EEG(Participant):
         super().__init__(filepath)
         config_data = getConfigData()
         setup(config_data)
-        self.output_directory_p = f"{config_data["PFOLDER"]["EEG_CSV"]}"
-        self.output_directory_fif = f"{config_data["PFOLDER"]["EEG_FIF"]}"
-        self.output_directory_reduced = f"{config_data["PFOLDER"]["EEG_REDUCED"]}"
+        self.output_directory_p = f"{config_data['PFOLDER']['EEG_CSV']}"
+        self.output_directory_fif = f"{config_data['PFOLDER']['EEG_FIF']}"
+        self.output_directory_reduced = f"{config_data['PFOLDER']['EEG_REDUCED']}"
         
     def loadData(self):
         '''

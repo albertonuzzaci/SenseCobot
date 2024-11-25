@@ -14,8 +14,8 @@ class Participant_ECG(Participant):
         super().__init__(filepath)
         config_data = getConfigData()
         setup(config_data)
-        self.output_directory = f"{config_data["PFOLDER"]["ECG_PROCESSED"]}"
-        self.output_directory_windows = f"{config_data["PFOLDER"]["ECG_PROCESSED_WINDOWS"]}"
+        self.output_directory = f"{config_data['PFOLDER']['ECG_PROCESSED']}"
+        self.output_directory_windows = f"{config_data['PFOLDER']['ECG_PROCESSED_WINDOWS']}"
         self.column_names = []
     
     def loadData(self):

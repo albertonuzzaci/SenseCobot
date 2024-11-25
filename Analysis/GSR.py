@@ -16,9 +16,9 @@ class Participant_GSR(Participant):
         super().__init__(filepath)
         config_data = getConfigData()
         setup(config_data)
-        self.output_directory = f"{config_data["PFOLDER"]["GSR_PROCESSED"]}"
-        self.output_directory_windows = f"{config_data["PFOLDER"]["GSR_PROCESSED_WINDOWS"]}"
-        self.output_directory_freq = f"{config_data["PFOLDER"]["GSR_PROCESSED_FREQUENCY"]}"
+        self.output_directory = f"{config_data['PFOLDER']['GSR_PROCESSED']}"
+        self.output_directory_windows = f"{config_data['PFOLDER']['GSR_PROCESSED_WINDOWS']}"
+        self.output_directory_freq = f"{config_data['PFOLDER']['GSR_PROCESSED_FREQUENCY']}"
     
     def loadData(self):
         '''
