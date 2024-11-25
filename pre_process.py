@@ -50,8 +50,8 @@ def preprocess_file(file_name, input_dir, signal, errors):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=RuntimeWarning)
             warnings.simplefilter("ignore", category=ConvergenceWarning)
-            #with contextlib.redirect_stdout(io.StringIO()):  
-            p.pre_process()
+            with contextlib.redirect_stdout(io.StringIO()):  
+                p.pre_process()
         print(f"...preprocessing {signal} {file_name} completed!")
     except Exception as e:
         errors[signal].append((file_name, traceback.format_exc()))
