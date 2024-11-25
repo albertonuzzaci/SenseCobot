@@ -5,11 +5,11 @@ This project is designed to process and analyze various physiological signals su
 
 ## Table of Contents
 1. [Virtual Environment Setup](#virtual-environment-setup)
-2. [General Setup](#installation)
+2. [General Setup](#general-setup)
 3. [Usage](#usage)
-4. [Contributing](#contributing)
+4. [Contributors](#contributors)
 
-## Genereal Setup
+## General Setup
 
 ### Dataset
 
@@ -69,7 +69,7 @@ After analyzing the data, you can merge the datasets into unique datasets for ea
 python3 merge_dataset.py
 ```
 
-### Contributors
+## Contributors
 
 - **Alberto Nuzzaci**
 - **Simone Borghi** 
