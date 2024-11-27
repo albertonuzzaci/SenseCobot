@@ -26,11 +26,14 @@ inputs = {
 }
 
 parallelize = {
-    "ECG": False,
-    "EEG": True,
-    "GSR": True,
-    "EMO": True
+    "ECG": f"{config_data['PARALLELIZE']['ECG']}",
+    "EEG": f"{config_data['PARALLELIZE']['EEG']}",
+    "GSR": f"{config_data['PARALLELIZE']['GSR']}",
+    "EMO": f"{config_data['PARALLELIZE']['EMOTIONS']}"
 }
+
+workers = int(f"{config_data['PARALLELIZE']['WORKERS']}")
+
 
 def create_participant(signal, file_path):
     class_name = f"Participant_{signal}"
@@ -81,7 +84,7 @@ if __name__ == "__main__":
             start_time = time.time()
 
             if parallelize[signal]:
-                with ProcessPoolExecutor(max_workers=12) as executor:
+                with ProcessPoolExecutor(max_workers=workers) as executor:
                     futures = {
                         executor.submit(preprocess_file, file_name, input_dir, signal, errors): file_name
                         for file_name in os.listdir(os.path.abspath(input_dir))

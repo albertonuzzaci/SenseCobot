@@ -141,10 +141,10 @@ class Participant_GSR(Participant):
         }
         task = f'Task {self.tasknumber}' if self.tasknumber != 0 else "Baseline"
 
-        power_spectrum_df = pd.DataFrame(power_spectrum_data)
+        self.power_spectrum_df = pd.DataFrame(power_spectrum_data)
         # Seleziona solo la prima riga delle colonne Low Band Power, Mid Band Power e High Band Power
         #power_spectrum_df = power_spectrum_df.iloc[0][["Low Band Power", Mid Band Power", "High Band Power"]]
-        power_spectrum_df.to_csv(os.path.join(self.output_directory_freq, f"GSR_{task}_P_{self.id}.csv"), index=False)
+        self.power_spectrum_df.to_csv(os.path.join(self.output_directory_freq, f"GSR_{task}_P_{self.id}.csv"), index=False)
  
         return low_band_power, mid_band_power, high_band_power, positive_freqs, psd   
     
@@ -260,6 +260,15 @@ class Participant_GSR(Participant):
 
         self.reduced_df = self.reduced_df.rename(columns=dict(zip(metrics, metrics_rename)))
 
+        
+
+        self.reduced_df['Low Band Power'] = np.nan
+        self.reduced_df['Mid Band Power'] = np.nan
+        self.reduced_df['High Band Power'] = np.nan
+        self.reduced_df.at[0, 'Low Band Power'] = self.power_spectrum_df['Low Band Power'].iloc[0]
+        self.reduced_df.at[0, 'Mid Band Power'] = self.power_spectrum_df['Mid Band Power'].iloc[0]
+        self.reduced_df.at[0, 'High Band Power'] = self.power_spectrum_df['High Band Power'].iloc[0]
+        
         outPath = os.path.join(self.output_directory_windows, f'GSR_{task}_P_{self.id}.csv')
         self.reduced_df.to_csv(outPath, index=False)
 

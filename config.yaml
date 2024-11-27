@@ -9,7 +9,14 @@ FOLDER:
 
 WINDOW_SIZE: 10
 
-
+#------ PARALLELIZATION ------
+PARALLELIZE:
+  ECG: False
+  EEG: True
+  GSR: True
+  EMOTIONS: True
+  WORKERS: 12
+#-----------------------------
 # ----- PRE PROCESSED DIRECTORY -----
 PFOLDER:
   #-----MAIN OUTPUT DIR----
